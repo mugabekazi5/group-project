@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0e100f;
+      --bg-elevated: #181a19;
+      --card: #1e2120;
+      --card-hover: #252827;
+      --border: #2e3230;
+      --fg: #e8ece9;
+      --fg-muted: #8a9490;
+      --accent: #34d399;
+      --accent-dim: rgba(52, 211, 153, 0.12);
+      --accent-glow: rgba(52, 211, 153, 0.25);
+      --danger: #f87171;
+      --danger-dim: rgba(248, 113, 113, 0.12);
+      --warning: #fbbf24;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(52, 211, 153, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(52, 211, 153, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-blob-1 {
+      width: 500px; height: 500px;
+      background: rgba(52, 211, 153, 0.08);
+      top: -150px; right: -100px;
+      animation: blobFloat 12s ease-in-out infinite;
+    }
+
+    .bg-blob-2 {
+      width: 400px; height: 400px;
+      background: rgba(52, 211, 153, 0.05);
+      bottom: -100px; left: -100px;
+      animation: blobFloat 15s ease-in-out infinite reverse;
+    }
+
+    .bg-blob-3 {
+      width: 300px; height: 300px;
+      background: rgba(251, 191, 36, 0.04);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: blobPulse 8s ease-in-out infinite;
+    }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 15px) scale(0.95); }
+    }
+
+    @keyframes blobPulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    }
+
+    /* Main layout */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    /* Header */
+    .form-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .form-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .form-header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--fg) 0%, var(--fg-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .form-header h1 span {
+      background: linear-gradient(135deg, var(--accent), #6ee7b7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .form-header p {
+      color: var(--fg-muted);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Progress bar */
+    .progress-container {
+      margin-bottom: 40px;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--fg-muted);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      cursor: default;
+    }
+
+    .step-circle.active {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .step-circle.completed {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .step-line {
+      width: 80px;
+      height: 2px;
+      background: var(--border);
+      transition: background 0.4s ease;
+    }
+
+    .step-line.active {
+      background: var(--accent);
+    }
+
+    .step-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 8px;
+    }
+
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--fg-muted);
+      text-align: center;
+      width: 80px;
+      transition: color 0.3s;
+    }
+
+    .step-label.active {
+      color: var(--accent);
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.5;
+    }
+
+    /* Step panels */
+    .step-panel {
+      display: none;
+      animation: panelIn 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-panel.active {
+      display: block;
+    }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .panel-subtitle {
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Form elements */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--fg);
+      letter-spacing: 0.3px;
+    }
+
+    .form-group label .required {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--fg-muted);
+      font-size: 0.9rem;
+      transition: color 0.3s;
+      pointer-events: none;
+    }
+
+    .input-wrapper input:focus ~ i,
+    .input-wrapper select:focus ~ i {
+      color: var(--accent);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--fg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--fg-muted);
+      opacity: 0.6;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+      background: rgba(52, 211, 153, 0.03);
+    }
+
+    input.error, select.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px var(--danger-dim);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select option {
+      background: var(--bg-elevated);
+      color: var(--fg);
+    }
+
+    textarea {
+      padding: 12px 14px;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .error-msg {
+      font-size: 0.75rem;
+      color: var(--danger);
+      min-height: 18px;
+      transition: all 0.2s;
+    }
+
+    /* Course cards */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .course-card {
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-card:hover {
+      border-color: rgba(52, 211, 153, 0.3);
+      transform: translateY(-2px);
+      background: var(--card-hover);
+    }
+
+    .course-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      box-shadow: 0 0 24px rgba(52, 211, 153, 0.1);
+    }
+
+    .course-card .check-mark {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: transparent;
+      transition: all 0.3s;
+    }
+
+    .course-card.selected .check-mark {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .course-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    .course-card .course-name {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+    }
+
+    .course-card .course-code {
+      font-size: 0.75rem;
+      color: var(--fg-muted);
+      margin-bottom: 10px;
+    }
+
+    .course-card .course-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.72rem;
+      color: var(--fg-muted);
+    }
+
+    .course-card .course-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .selected-count {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Schedule */
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .time-slot-group {
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .time-slot-group h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .time-slot-group h4 i {
+      color: var(--accent);
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .radio-option:hover {
+      background: rgba(52, 211, 153, 0.04);
+    }
+
+    .radio-option.selected {
+      background: var(--accent-dim);
+      border-color: rgba(52, 211, 153, 0.2);
+    }
+
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+
+    .radio-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+      flex-shrink: 0;
+    }
+
+    .radio-dot::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      transform: scale(0);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .radio-option.selected .radio-dot {
+      border-color: var(--accent);
+    }
+
+    .radio-option.selected .radio-dot::after {
+      transform: scale(1);
+    }
+
+    .radio-option span {
+      font-size: 0.85rem;
+      color: var(--fg);
+    }
+
+    /* Review panel */
+    .review-section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .review-section h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--fg-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .review-section h4 i {
+      color: var(--accent);
+    }
+
+    .review-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(46, 50, 48, 0.5);
+    }
+
+    .review-row:last-child {
+      border-bottom: none;
+    }
+
+    .review-row .label {
+      font-size: 0.84rem;
+      color: var(--fg-muted);
+    }
+
+    .review-row .value {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--fg);
+    }
+
+    .review-courses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .review-chip {
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .terms-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 20px;
+      padding: 16px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .terms-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      margin-top: 2px;
+      padding: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .terms-check label {
+      font-size: 0.84rem;
+      color: var(--fg-muted);
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .terms-check label a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 32px;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--fg-muted);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--card-hover);
+      color: var(--fg);
+      border-color: var(--fg-muted);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      background: #6ee7b7;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--fg);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: toastIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 280px;
+    }
+
+    .toast.success { border-left: 3px solid var(--accent); }
+    .toast.error { border-left: 3px solid var(--danger); }
+    .toast.success i { color: var(--accent); }
+    .toast.error i { color: var(--danger); }
+
+    .toast.removing {
+      animation: toastOut 0.3s forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(40px); }
+    }
+
+    /* Success overlay */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(14, 16, 15, 0.92);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-overlay.active {
+      display: flex;
+    }
+
+    .success-content {
+      text-align: center;
+      animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes successPop {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 3px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 2.2rem;
+      color: var(--accent);
+      animation: successPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes successPulse {
+      0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+      50% { box-shadow: 0 0 0 16px transparent; }
+    }
+
+    .success-content h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .success-content p {
+      color: var(--fg-muted);
+      font-size: 1rem;
+      margin-bottom: 28px;
+    }
+
+    .success-content .ref-code {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 24px;
+      display: inline-block;
+      font-family: 'Space Grotesk', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    /* Particles */
+    .particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .form-card { padding: 24px 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .schedule-grid { grid-template-columns: 1fr; }
+      .step-line { width: 40px; }
+      .courses-grid { grid-template-columns: 1fr; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+      .page-wrapper { padding: 24px 12px 40px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background elements -->
+  <div class="bg-grid"></div>
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-blob bg-blob-3"></div>
+  <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Success overlay -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-content">
+      <div class="success-icon"><i class="fas fa-check"></i></div>
+      <h2>Registration Complete</h2>
+      <p>Your course registration has been submitted successfully.</p>
+      <div class="ref-code" id="refCode">REG-20250001</div>
+      <br>
+      <button class="btn btn-primary" onclick="resetForm()">
+        <i class="fas fa-plus"></i> Register Another
+      </button>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+    <!-- Header -->
+    <header class="form-header">
+      <div class="badge"><i class="fas fa-graduation-cap"></i> Spring 2025</div>
+      <h1>Course <span>Registration</span></h1>
+      <p>Complete the form below to enroll in your desired courses for the upcoming semester.</p>
+    </header>
+
+    <!-- Progress -->
+    <nav class="progress-container" aria-label="Registration steps">
+      <div class="progress-steps">
+        <div class="step-item">
+          <div class="step-circle active" id="stepCircle1">1</div>
+        </div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-item">
+          <div class="step-circle" id="stepCircle2">2</div>
+        </div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-item">
+          <div class="step-circle" id="stepCircle3">3</div>
+        </div>
+        <div class="step-line" id="stepLine3"></div>
+        <div class="step-item">
+          <div class="step-circle" id="stepCircle4">4</div>
+        </div>
+      </div>
+      <div class="step-labels">
+        <span class="step-label active" id="stepLabel1">Personal Info</span>
+        <span class="step-label" id="stepLabel2">Courses</span>
+        <span class="step-label" id="stepLabel3">Schedule</span>
+        <span class="step-label" id="stepLabel4">Review</span>
+      </div>
+    </nav>
+
+    <!-- Form -->
+    <main class="form-card">
+      <form id="registrationForm" novalidate>
+
+        <!-- Step 1: Personal Info -->
+        <section class="step-panel active" id="panel1">
+          <h2 class="panel-title">Personal Information</h2>
+          <p class="panel-subtitle">Tell us about yourself so we can set up your student profile.</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>First Name <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" id="firstName" placeholder="John" required>
+                <i class="fas fa-user"></i>
+              </div>
+              <span class="error-msg" id="firstNameError"></span>
+            </div>
+            <div class="form-group">
+              <label>Last Name <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" id="lastName" placeholder="Doe" required>
+                <i class="fas fa-user"></i>
+              </div>
+              <span class="error-msg" id="lastNameError"></span>
+            </div>
+            <div class="form-group">
+              <label>Email Address <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="email" id="email" placeholder="john@university.edu" required>
+                <i class="fas fa-envelope"></i>
+              </div>
+              <span class="error-msg" id="emailError"></span>
+            </div>
+            <div class="form-group">
+              <label>Phone Number <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="tel" id="phone" placeholder="+1 (555) 123-4567" required>
+                <i class="fas fa-phone"></i>
+              </div>
+              <span class="error-msg" id="phoneError"></span>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="date" id="dob" required>
+                <i class="fas fa-calendar"></i>
+              </div>
+              <span class="error-msg" id="dobError"></span>
+            </div>
+            <div class="form-group">
+              <label>Student ID <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" id="studentId" placeholder="STU-2025-0401" required>
+                <i class="fas fa-id-card"></i>
+              </div>
+              <span class="error-msg" id="studentIdError"></span>
+            </div>
+            <div class="form-group full-width">
+              <label>Department</label>
+              <div class="input-wrapper">
+                <select id="department">
+                  <option value="">Select your department</option>
+                  <option value="cs">Computer Science</option>
+                  <option value="ee">Electrical Engineering</option>
+                  <option value="me">Mechanical Engineering</option>
+                  <option value="ce">Civil Engineering</option>
+                  <option value="bus">Business Administration</option>
+                  <option value="math">Mathematics</option>
+                  <option value="phys">Physics</option>
+                  <option value="art">Art & Design</option>
+                </select>
+                <i class="fas fa-building"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <div></div>
+            <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+              Continue <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 2: Course Selection -->
+        <section class="step-panel" id="panel2">
+          <h2 class="panel-title">Select Your Courses</h2>
+          <p class="panel-subtitle">Choose between 1 and 4 courses for this semester. Click a card to toggle selection.</p>
+
+          <div class="courses-grid" id="coursesGrid"></div>
+
+          <div class="selected-count" id="selectedCount">
+            <i class="fas fa-info-circle"></i>
+            <span>No courses selected yet — please select at least 1</span>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+              Continue <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 3: Schedule -->
+        <section class="step-panel" id="panel3">
+          <h2 class="panel-title">Schedule Preferences</h2>
+          <p class="panel-subtitle">Let us know your preferred class schedule and learning mode.</p>
+
+          <div class="schedule-grid">
+            <div class="time-slot-group">
+              <h4><i class="fas fa-clock"></i> Preferred Time</h4>
+              <div class="radio-group" id="timePrefGroup">
+                <label class="radio-option" onclick="selectRadio(this, 'timePrefGroup')">
+                  <input type="radio" name="timePref" value="morning">
+                  <span class="radio-dot"></span>
+                  <span>Morning (8:00 - 12:00)</span>
+                </label>
+                <label class="radio-option" onclick="selectRadio(this, 'timePrefGroup')">
+                  <input type="radio" name="timePref" value="afternoon">
+                  <span class="radio-dot"></span>
+                  <span>Afternoon (12:00 - 17:00)</span>
+                </label>
+                <label class="radio-option" onclick="selectRadio(this, 'timePrefGroup')">
+                  <input type="radio" name="timePref" value="evening">
+                  <span class="radio-dot"></span>
+                  <span>Evening (17:00 - 21:00)</span>
+                </label>
+                <label class="radio-option" onclick="selectRadio(this, 'timePrefGroup')">
+                  <input type="radio" name="timePref" value="flexible">
+                  <span class="radio-dot"></span>
+                  <span>Flexible / No Preference</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="time-slot-group">
+              <h4><i class="fas fa-laptop"></i> Learning Mode</h4>
+              <div class="radio-group" id="modePrefGroup">
+                <label class="radio-option" onclick="selectRadio(this, 'modePrefGroup')">
+                  <input type="radio" name="modePref" value="onsite">
+                  <span class="radio-dot"></span>
+                  <span>On-Campus (In Person)</span>
+                </label>
+                <label class="radio-option" onclick="selectRadio(this, 'modePrefGroup')">
+                  <input type="radio" name="modePref" value="online">
+                  <span class="radio-dot"></span>
+                  <span>Fully Online</span>
+                </label>
+                <label class="radio-option" onclick="selectRadio(this, 'modePrefGroup')">
+                  <input type="radio" name="modePref" value="hybrid">
+                  <span class="radio-dot"></span>
+                  <span>Hybrid (Mixed)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="time-slot-group" style="grid-column: 1 / -1;">
+              <h4><i class="fas fa-calendar-week"></i> Preferred Days</h4>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;" id="daysGroup">
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Mon">Mon</button>
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Tue">Tue</button>
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Wed">Wed</button>
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Thu">Thu</button>
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Fri">Fri</button>
+                <button type="button" class="day-btn" onclick="toggleDay(this)" data-day="Sat">Sat</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="margin-top: 20px;">
+            <label>Additional Notes</label>
+            <textarea id="notes" placeholder="Any special requirements, scheduling conflicts, or notes for the registrar..."></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+              Continue <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 4: Review -->
+        <section class="step-panel" id="panel4">
+          <h2 class="panel-title">Review & Submit</h2>
+          <p class="panel-subtitle">Double-check your information before submitting your registration.</p>
+
+          <div class="review-section">
+            <h4><i class="fas fa-user"></i> Personal Information</h4>
+            <div class="review-row">
+              <span class="label">Full Name</span>
+              <span class="value" id="reviewName">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Email</span>
+              <span class="value" id="reviewEmail">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Phone</span>
+              <span class="value" id="reviewPhone">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Date of Birth</span>
+              <span class="value" id="reviewDob">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Student ID</span>
+              <span class="value" id="reviewStudentId">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Department</span>
+              <span class="value" id="reviewDept">—</span>
+            </div>
+          </div>
+
+          <div class="review-section">
+            <h4><i class="fas fa-book"></i> Selected Courses</h4>
+            <div class="review-courses" id="reviewCourses">—</div>
+          </div>
+
+          <div class="review-section">
+            <h4><i class="fas fa-calendar"></i> Schedule Preferences</h4>
+            <div class="review-row">
+              <span class="label">Preferred Time</span>
+              <span class="value" id="reviewTime">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Learning Mode</span>
+              <span class="value" id="reviewMode">—</span>
+            </div>
+            <div class="review-row">
+              <span class="label">Preferred Days</span>
+              <span class="value" id="reviewDays">—</span>
+            </div>
+          </div>
+
+          <div class="terms-check">
+            <input type="checkbox" id="termsCheck">
+            <label for="termsCheck">I confirm that the information provided is accurate and I agree to the <a href="#">registration policies</a> and <a href="#">academic regulations</a> of the institution.</label>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn btn-primary" id="submitBtn" onclick="submitForm()" disabled>
+              <i class="fas fa-paper-plane"></i> Submit Registration
+            </button>
+          </div>
+        </section>
+
+      </form>
+    </main>
+  </div>
+
+  <style>
+    /* Day toggle buttons */
+    .day-btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--fg-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .day-btn:hover {
+      border-color: rgba(52, 211, 153, 0.3);
+      color: var(--fg);
+    }
+
+    .day-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  </style>
+
+  <script>
+    // ==========================================
+    // Course data
+    // ==========================================
+    const courses = [
+      { id: 'cs101', name: 'Intro to Computer Science', code: 'CS 101', credits: 3, icon: 'fa-code', color: '#34d399' },
+      { id: 'cs210', name: 'Data Structures & Algorithms', code: 'CS 210', credits: 4, icon: 'fa-sitemap', color: '#60a5fa' },
+      { id: 'cs305', name: 'Machine Learning Fundamentals', code: 'CS 305', credits: 3, icon: 'fa-brain', color: '#c084fc' },
+      { id: 'math201', name: 'Linear Algebra', code: 'MATH 201', credits: 3, icon: 'fa-square-root-variable', color: '#fbbf24' },
+      { id: 'phys101', name: 'Physics Mechanics', code: 'PHYS 101', credits: 4, icon: 'fa-atom', color: '#f87171' },
+      { id: 'eng110', name: 'Academic Writing', code: 'ENG 110', credits: 2, icon: 'fa-pen-nib', color: '#fb923c' },
+      { id: 'bus220', name: 'Principles of Marketing', code: 'BUS 220', credits: 3, icon: 'fa-chart-line', color: '#2dd4bf' },
+      { id: 'art150', name: 'Digital Illustration', code: 'ART 150', credits: 2, icon: 'fa-palette', color: '#e879f9' },
+    ];
+
+    let selectedCourses = new Set();
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    // ==========================================
+    // Initialize courses grid
+    // ==========================================
+    function renderCourses() {
+      const grid = document.getElementById('coursesGrid');
+      grid.innerHTML = courses.map(c => `
+        <div class="course-card" id="card-${c.id}" onclick="toggleCourse('${c.id}')">
+          <div class="check-mark"><i class="fas fa-check"></i></div>
+          <div class="course-icon" style="background: ${c.color}20; color: ${c.color};">
+            <i class="fas ${c.icon}"></i>
+          </div>
+          <div class="course-name">${c.name}</div>
+          <div class="course-code">${c.code}</div>
+          <div class="course-meta">
+            <span><i class="fas fa-star"></i> ${c.credits} Credits</span>
+            <span><i class="fas fa-users"></i> Open</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCourse(id) {
+      if (selectedCourses.has(id)) {
+        selectedCourses.delete(id);
+      } else {
+        if (selectedCourses.size >= 4) {
+          showToast('You can select a maximum of 4 courses.', 'error');
+          return;
+        }
+        selectedCourses.add(id);
+      }
+      updateCourseCards();
+      updateSelectedCount();
+    }
+
+    function updateCourseCards() {
+      courses.forEach(c => {
+        const card = document.getElementById(`card-${c.id}`);
+        if (selectedCourses.has(c.id)) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+    }
+
+    function updateSelectedCount() {
+      const el = document.getElementById('selectedCount');
+      const count = selectedCourses.size;
+      const totalCredits = courses.filter(c => selectedCourses.has(c.id)).reduce((sum, c) => sum + c.credits, 0);
+      if (count === 0) {
+        el.innerHTML = `<i class="fas fa-info-circle"></i><span>No courses selected yet — please select at least 1</span>`;
+      } else {
+        el.innerHTML = `<i class="fas fa-check-circle"></i><span>${count} course${count > 1 ? 's' : ''} selected — ${totalCredits} total credits</span>`;
+      }
+    }
+
+    // ==========================================
+    // Radio selection helper
+    // ==========================================
+    function selectRadio(option, groupId) {
+      const group = document.getElementById(groupId);
+      group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+    }
+
+    // ==========================================
+    // Day toggle
+    // ==========================================
+    function toggleDay(btn) {
+      btn.classList.toggle('active');
+    }
+
+    // ==========================================
+    // Step navigation
+    // ==========================================
+    function goToStep(step) {
+      // Hide all panels
+      for (let i = 1; i <= totalSteps; i++) {
+        document.getElementById(`panel${i}`).classList.remove('active');
+      }
+      // Show target panel
+      document.getElementById(`panel${step}`).classList.add('active');
+
+      // Update progress indicators
+      for (let i = 1; i <= totalSteps; i++) {
+        const circle = document.getElementById(`stepCircle${i}`);
+        const label = document.getElementById(`stepLabel${i}`);
+        circle.classList.remove('active', 'completed');
+        label.classList.remove('active');
+
+        if (i < step) {
+          circle.classList.add('completed');
+          circle.innerHTML = '<i class="fas fa-check" style="font-size:0.75rem"></i>';
+        } else if (i === step) {
+          circle.classList.add('active');
+          label.classList.add('active');
+          circle.textContent = i;
+        } else {
+          circle.textContent = i;
+        }
+      }
+
+      // Update lines
+      for (let i = 1; i < totalSteps; i++) {
+        const line = document.getElementById(`stepLine${i}`);
+        if (i < step) {
+          line.classList.add('active');
+        } else {
+          line.classList.remove('active');
+        }
+      }
+
+      currentStep = step;
+
+      // If going to review step, populate review
+      if (step === 4) {
+        populateReview();
+      }
+
+      // Scroll to top of form
+      document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function nextStep(from) {
+      if (!validateStep(from)) return;
+      goToStep(from + 1);
+    }
+
+    function prevStep(from) {
+      goToStep(from - 1);
+    }
+
+    // ==========================================
+    // Validation
+    // ==========================================
+    function validateStep(step) {
+      clearErrors();
+
+      if (step === 1) {
+        let valid = true;
+
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const email = document.getElementById('email');
+        const phone = document.getElementById('phone');
+        const dob = document.getElementById('dob');
+        const studentId = document.getElementById('studentId');
+
+        if (!firstName.value.trim()) {
+          showFieldError(firstName, 'firstNameError', 'First name is required');
+          valid = false;
+        }
+
+        if (!lastName.value.trim()) {
+          showFieldError(lastName, 'lastNameError', 'Last name is required');
+          valid = false;
+        }
+
+        if (!email.value.trim()) {
+          showFieldError(email, 'emailError', 'Email is required');
+          valid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+          showFieldError(email, 'emailError', 'Please enter a valid email address');
+          valid = false;
+        }
+
+        if (!phone.value.trim()) {
+          showFieldError(phone, 'phoneError', 'Phone number is required');
+          valid = false;
+        } else if (phone.value.replace(/\D/g, '').length < 7) {
+          showFieldError(phone, 'phoneError', 'Please enter a valid phone number');
+          valid = false;
+        }
+
+        if (!dob.value) {
+          showFieldError(dob, 'dobError', 'Date of birth is required');
+          valid = false;
+        }
+
+        if (!studentId.value.trim()) {
+          showFieldError(studentId, 'studentIdError', 'Student ID is required');
+          valid = false;
+        }
+
+        if (!valid) showToast('Please fill in all required fields correctly.', 'error');
+        return valid;
+      }
+
+      if (step === 2) {
+        if (selectedCourses.size === 0) {
+          showToast('Please select at least one course.', 'error');
+          return false;
+        }
+        return true;
+      }
+
+      if (step === 3) {
+        const timePref = document.querySelector('input[name="timePref"]:checked');
+        const modePref = document.querySelector('input[name="modePref"]:checked');
+
+        if (!timePref || !modePref) {
+          showToast('Please select your preferred time and learning mode.', 'error');
+          return false;
+        }
+        return true;
+      }
+
+      return true;
+    }
+
+    function showFieldError(input, errorId, message) {
+      input.classList.add('error');
+      document.getElementById(errorId).textContent = message;
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('input.error, select.error').forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+    }
+
+    // Clear error on input focus
+    document.addEventListener('focusin', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        e.target.classList.remove('error');
+        const errorEl = e.target.closest('.form-group')?.querySelector('.error-msg');
+        if (errorEl) errorEl.textContent = '';
+      }
+    });
+
+    // ==========================================
+    // Review population
+    // ==========================================
+    function populateReview() {
+      const deptSelect = document.getElementById('department');
+      const deptText = deptSelect.options[deptSelect.selectedIndex]?.text || '—';
+
+      document.getElementById('reviewName').textContent =
+        `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+      document.getElementById('reviewEmail').textContent = document.getElementById('email').value;
+      document.getElementById('reviewPhone').textContent = document.getElementById('phone').value;
+      document.getElementById('reviewDob').textContent = document.getElementById('dob').value || '—';
+      document.getElementById('reviewStudentId').textContent = document.getElementById('studentId').value;
+      document.getElementById('reviewDept').textContent = deptText;
+
+      // Courses
+      const coursesContainer = document.getElementById('reviewCourses');
+      const selectedCourseData = courses.filter(c => selectedCourses.has(c.id));
+      coursesContainer.innerHTML = selectedCourseData.map(c =>
+        `<span class="review-chip">${c.code} — ${c.name}</span>`
+      ).join('');
+
+      // Schedule
+      const timePref = document.querySelector('input[name="timePref"]:checked');
+      const timeLabels = { morning: 'Morning (8:00 - 12:00)', afternoon: 'Afternoon (12:00 - 17:00)', evening: 'Evening (17:00 - 21:00)', flexible: 'Flexible' };
+      document.getElementById('reviewTime').textContent = timePref ? timeLabels[timePref.value] : '—';
+
+      const modePref = document.querySelector('input[name="modePref"]:checked');
+      const modeLabels = { onsite: 'On-Campus', online: 'Fully Online', hybrid: 'Hybrid' };
+      document.getElementById('reviewMode').textContent = modePref ? modeLabels[modePref.value] : '—';
+
+      const selectedDays = [...document.querySelectorAll('.day-btn.active')].map(b => b.dataset.day);
+      document.getElementById('reviewDays').textContent = selectedDays.length > 0 ? selectedDays.join(', ') : '—';
+
+      // Terms checkbox
+      const termsCheck = document.getElementById('termsCheck');
+      const submitBtn = document.getElementById('submitBtn');
+      termsCheck.checked = false;
+      submitBtn.disabled = true;
+
+      termsCheck.onchange = () => {
+        submitBtn.disabled = !termsCheck.checked;
+      };
+    }
+
+    // ==========================================
+    // Submit
+    // ==========================================
+    function submitForm() {
+      const refCode = 'REG-2025-' + String(Math.floor(1000 + Math.random() * 9000));
+      document.getElementById('refCode').textContent = refCode;
+      document.getElementById('successOverlay').classList.add('active');
+      showToast('Registration submitted successfully!', 'success');
+    }
+
+    function resetForm() {
+      document.getElementById('successOverlay').classList.remove('active');
+      document.getElementById('registrationForm').reset();
+      selectedCourses.clear();
+      updateCourseCards();
+      updateSelectedCount();
+
+      // Clear radio visual state
+      document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+
+      goToStep(1);
+    }
+
+    // ==========================================
+    // Toast system
+    // ==========================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+      toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================
+    // Floating particles
+    // ==========================================
+    function initParticles() {
+      const canvas = document.getElementById('particlesCanvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const PARTICLE_COUNT = 40;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Check reduced motion preference
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) return;
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.max(0.5, Math.random() * 2),
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.4 + 0.1,
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, Math.max(0.3, p.radius), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(52, 211, 153, ${p.opacity})`;
+          ctx.fill();
+        });
+
+        // Draw connections
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(52, 211, 153, ${0.06 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+
+    // ==========================================
+    // Init
+    // ==========================================
+    renderCourses();
+    initParticles();
+  </script>
+</body>
+</html>
